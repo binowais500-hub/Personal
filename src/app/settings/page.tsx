@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { PageHeader } from "@/components/page-header";
 
 export default function SettingsPage() {
   const [current, setCurrent] = React.useState("");
@@ -44,10 +45,7 @@ export default function SettingsPage() {
 
   return (
     <div className="mx-auto flex max-w-2xl flex-col gap-6">
-      <div>
-        <h1 className="text-xl font-semibold tracking-tight">Settings</h1>
-        <p className="text-muted-foreground mt-1 text-sm">Password, categories, and your data.</p>
-      </div>
+      <PageHeader title="Settings" description="Password, categories, and your data." />
 
       <Card>
         <CardHeader>

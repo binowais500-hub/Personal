@@ -7,6 +7,7 @@ import { Progress } from "@/components/ui/progress";
 import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Sparkline } from "@/components/sparkline";
 import { ExportPdfButton } from "@/components/export-pdf-button";
+import { PageHeader } from "@/components/page-header";
 import { cn, formatAED, formatDate, formatMonthYear, formatPercent } from "@/lib/utils";
 import Link from "next/link";
 
@@ -72,13 +73,7 @@ export default async function OverviewPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-semibold tracking-tight">Overview</h1>
-          <p className="text-muted-foreground mt-1 text-sm">{formatMonthYear(now)}</p>
-        </div>
-        <ExportPdfButton />
-      </div>
+      <PageHeader title="Overview" description={formatMonthYear(now)} actions={<ExportPdfButton />} />
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
         <Card className="lg:col-span-2">

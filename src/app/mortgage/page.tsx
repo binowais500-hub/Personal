@@ -24,6 +24,7 @@ import { PrincipalInterestChart } from "@/components/charts/principal-interest-c
 import { AmortizationTable } from "@/components/amortization-table";
 import { formatAED, formatDate, formatPercent } from "@/lib/utils";
 import { Pencil } from "lucide-react";
+import { PageHeader } from "@/components/page-header";
 
 export const dynamic = "force-dynamic";
 
@@ -85,42 +86,40 @@ export default async function MortgagePage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-semibold tracking-tight">Mortgage</h1>
-          <p className="text-muted-foreground mt-1 text-sm">
-            {mortgage.bankName} · {formatPercent(mortgage.fixedRateAPR)} fixed until {formatDate(mortgage.fixedPeriodEndDate)}
-          </p>
-        </div>
-        <Dialog>
-          <DialogTrigger asChild>
-            <Button variant="outline">
-              <Pencil className="size-4" /> Edit terms
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-2xl">
-            <DialogHeader>
-              <DialogTitle>Edit loan terms</DialogTitle>
-              <DialogDescription>Update this if your bank changes your rate or you refinance.</DialogDescription>
-            </DialogHeader>
-            <MortgageForm
-              mortgageId={mortgage.id}
-              initial={{
-                bankName: mortgage.bankName,
-                principal: String(mortgage.principal),
-                startDate: format(mortgage.startDate, "yyyy-MM-dd"),
-                tenorMonths: String(mortgage.tenorMonths),
-                fixedRateAPR: String(mortgage.fixedRateAPR),
-                fixedPeriodEndDate: format(mortgage.fixedPeriodEndDate, "yyyy-MM-dd"),
-                marginBps: String(mortgage.marginBps / 100),
-                eiborAssumptionBps: String(mortgage.eiborAssumptionBps / 100),
-                monthlyPayment: String(mortgage.monthlyPayment),
-                earlySettlementFeeCapPct: String(mortgage.earlySettlementFeeCapPct),
-              }}
-            />
-          </DialogContent>
-        </Dialog>
-      </div>
+      <PageHeader
+        title="Mortgage"
+        description={`${mortgage.bankName} · ${formatPercent(mortgage.fixedRateAPR)} fixed until ${formatDate(mortgage.fixedPeriodEndDate)}`}
+        actions={
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button variant="outline">
+                <Pencil className="size-4" /> Edit terms
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-2xl">
+              <DialogHeader>
+                <DialogTitle>Edit loan terms</DialogTitle>
+                <DialogDescription>Update this if your bank changes your rate or you refinance.</DialogDescription>
+              </DialogHeader>
+              <MortgageForm
+                mortgageId={mortgage.id}
+                initial={{
+                  bankName: mortgage.bankName,
+                  principal: String(mortgage.principal),
+                  startDate: format(mortgage.startDate, "yyyy-MM-dd"),
+                  tenorMonths: String(mortgage.tenorMonths),
+                  fixedRateAPR: String(mortgage.fixedRateAPR),
+                  fixedPeriodEndDate: format(mortgage.fixedPeriodEndDate, "yyyy-MM-dd"),
+                  marginBps: String(mortgage.marginBps / 100),
+                  eiborAssumptionBps: String(mortgage.eiborAssumptionBps / 100),
+                  monthlyPayment: String(mortgage.monthlyPayment),
+                  earlySettlementFeeCapPct: String(mortgage.earlySettlementFeeCapPct),
+                }}
+              />
+            </DialogContent>
+          </Dialog>
+        }
+      />
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard label="Outstanding balance" value={formatAED(balance)} sub={`${formatPercent(percentPaid, 1)} paid off`} />

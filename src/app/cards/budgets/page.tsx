@@ -2,6 +2,7 @@ import { startOfMonth } from "date-fns";
 import { db } from "@/lib/db";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { BudgetRow } from "@/components/budget-row";
+import { PageHeader } from "@/components/page-header";
 import { formatAED } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
@@ -28,10 +29,7 @@ export default async function BudgetsPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div>
-        <h1 className="text-xl font-semibold tracking-tight">Budgets</h1>
-        <p className="text-muted-foreground mt-1 text-sm">Set a monthly amount per category — click a number to edit it.</p>
-      </div>
+      <PageHeader title="Budgets" description="Set a monthly amount per category — click a number to edit it." />
 
       <Card>
         <CardHeader>

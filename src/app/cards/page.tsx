@@ -8,7 +8,9 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { formatAED, formatMonthYear } from "@/lib/utils";
 import { MonthlyTrendChart, type TrendDatum } from "@/components/charts/monthly-trend-chart";
 import { CategoryBreakdownChart } from "@/components/charts/category-breakdown-chart";
-import { Upload } from "lucide-react";
+import { Upload, CreditCard } from "lucide-react";
+import { PageHeader } from "@/components/page-header";
+import { EmptyState } from "@/components/empty-state";
 
 export const dynamic = "force-dynamic";
 
@@ -71,17 +73,17 @@ export default async function CardsPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-semibold tracking-tight">Cards</h1>
-          <p className="text-muted-foreground mt-1 text-sm">{formatMonthYear(`${currentMonth}-01`)} at a glance</p>
-        </div>
-        <Link href="/cards/import">
-          <Button>
-            <Upload className="size-4" /> Import statement
-          </Button>
-        </Link>
-      </div>
+      <PageHeader
+        title="Cards"
+        description={`${formatMonthYear(`${currentMonth}-01`)} at a glance`}
+        actions={
+          <Link href="/cards/import">
+            <Button>
+              <Upload className="size-4" /> Import statement
+            </Button>
+          </Link>
+        }
+      />
 
       <div className="grid gap-4 sm:grid-cols-3">
         <StatCard label="This month" value={formatAED(thisMonthTotal)} sub={`vs ${formatAED(lastMonthTotal)} last month`} />
@@ -106,12 +108,17 @@ export default async function CardsPage() {
         ))}
         {cards.length === 0 && (
           <Card className="sm:col-span-3">
-            <CardContent className="text-muted-foreground pt-6 text-sm">
-              No cards yet.{" "}
-              <Link href="/cards/import" className="text-primary underline underline-offset-2">
-                Import a statement
-              </Link>{" "}
-              to get started.
+            <CardContent className="pt-6">
+              <EmptyState
+                icon={CreditCard}
+                title="No cards yet"
+                description="Import a statement to add your first card and start tracking spend."
+                action={
+                  <Link href="/cards/import">
+                    <Button variant="outline">Import a statement</Button>
+                  </Link>
+                }
+              />
             </CardContent>
           </Card>
         )}

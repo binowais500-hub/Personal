@@ -1,8 +1,7 @@
 import { db } from "@/lib/db";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { MortgageResetView } from "@/components/mortgage-reset-view";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
+import { PageHeader } from "@/components/page-header";
+import { NoMortgageSetup } from "@/components/no-mortgage-setup";
 
 export const dynamic = "force-dynamic";
 
@@ -10,27 +9,12 @@ export default async function MortgageResetPage() {
   const mortgage = await db.mortgage.findFirst({ orderBy: { createdAt: "asc" } });
 
   if (!mortgage) {
-    return (
-      <Card className="mx-auto max-w-lg">
-        <CardHeader>
-          <CardTitle>No mortgage set up yet</CardTitle>
-          <CardDescription>Add your loan terms first.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Link href="/mortgage">
-            <Button>Set up mortgage</Button>
-          </Link>
-        </CardContent>
-      </Card>
-    );
+    return <NoMortgageSetup />;
   }
 
   return (
     <div className="flex flex-col gap-6">
-      <div>
-        <h1 className="text-xl font-semibold tracking-tight">Rate reset</h1>
-        <p className="text-muted-foreground mt-1 text-sm">What your payment becomes once the fixed period ends.</p>
-      </div>
+      <PageHeader title="Rate reset" description="What your payment becomes once the fixed period ends." />
       <MortgageResetView
         mortgage={{
           principal: mortgage.principal,

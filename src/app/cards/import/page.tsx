@@ -33,6 +33,7 @@ import { normalizeMerchant } from "@/lib/merchant";
 import { computeDedupeHash } from "@/lib/dedupe";
 import type { ImportFileType, MappingConfig, ParsedRow } from "@/lib/import/types";
 import { cn, formatAED } from "@/lib/utils";
+import { PageHeader } from "@/components/page-header";
 
 interface CardRow {
   id: string;
@@ -288,12 +289,7 @@ export default function ImportPage() {
 
   return (
     <div className="mx-auto flex max-w-4xl flex-col gap-6">
-      <div>
-        <h1 className="text-xl font-semibold tracking-tight">Import a statement</h1>
-        <p className="text-muted-foreground mt-1 text-sm">
-          CSV, Excel, or PDF — mapped once per bank and remembered for next time.
-        </p>
-      </div>
+      <PageHeader title="Import a statement" description="CSV, Excel, or PDF — mapped once per bank and remembered for next time." />
 
       <div className="flex items-center gap-2 text-sm">
         {(["Card", "Upload", "Map columns", "Preview & save"] as const).map((label, i) => (

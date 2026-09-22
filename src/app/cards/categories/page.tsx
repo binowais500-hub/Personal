@@ -18,6 +18,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface RuleRow {
   id: string;
@@ -127,7 +128,21 @@ export default function CategoriesPage() {
     await refresh();
   }
 
-  if (loading) return <p className="text-muted-foreground text-sm">Loading…</p>;
+  if (loading) {
+    return (
+      <div className="grid gap-6 lg:grid-cols-[280px_1fr]">
+        <div className="flex flex-col gap-3">
+          <Skeleton className="h-7 w-32" />
+          <div className="flex flex-col gap-2">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <Skeleton key={i} className="h-8 w-full" />
+            ))}
+          </div>
+        </div>
+        <Skeleton className="h-64 w-full" />
+      </div>
+    );
+  }
 
   return (
     <div className="grid gap-6 lg:grid-cols-[280px_1fr]">

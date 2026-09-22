@@ -1,12 +1,11 @@
-import Link from "next/link";
 import { db } from "@/lib/db";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { AddMortgagePaymentDialog } from "@/components/add-mortgage-payment-dialog";
 import { DeleteMortgagePaymentButton } from "@/components/delete-mortgage-payment-button";
 import { formatAED, formatDate } from "@/lib/utils";
+import { PageHeader } from "@/components/page-header";
+import { NoMortgageSetup } from "@/components/no-mortgage-setup";
 
 export const dynamic = "force-dynamic";
 
@@ -21,19 +20,7 @@ export default async function MortgagePaymentsPage() {
   const mortgage = await db.mortgage.findFirst({ orderBy: { createdAt: "asc" } });
 
   if (!mortgage) {
-    return (
-      <Card className="mx-auto max-w-lg">
-        <CardHeader>
-          <CardTitle>No mortgage set up yet</CardTitle>
-          <CardDescription>Add your loan terms first.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Link href="/mortgage">
-            <Button>Set up mortgage</Button>
-          </Link>
-        </CardContent>
-      </Card>
-    );
+    return <NoMortgageSetup />;
   }
 
   const payments = await db.mortgagePayment.findMany({
@@ -46,15 +33,11 @@ export default async function MortgagePaymentsPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-semibold tracking-tight">Payment log</h1>
-          <p className="text-muted-foreground mt-1 text-sm">
-            {formatAED(totalPaid)} paid in total · {formatAED(totalExtra)} in extra/lump-sum payments
-          </p>
-        </div>
-        <AddMortgagePaymentDialog mortgageId={mortgage.id} />
-      </div>
+      <PageHeader
+        title="Payment log"
+        description={`${formatAED(totalPaid)} paid in total · ${formatAED(totalExtra)} in extra/lump-sum payments`}
+        actions={<AddMortgagePaymentDialog mortgageId={mortgage.id} />}
+      />
 
       <div className="overflow-hidden rounded-md border border-border/60">
         <Table>

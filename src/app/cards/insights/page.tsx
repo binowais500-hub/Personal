@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { formatAED, formatDate } from "@/lib/utils";
+import { PageHeader } from "@/components/page-header";
 
 export const dynamic = "force-dynamic";
 
@@ -41,10 +42,7 @@ export default async function InsightsPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div>
-        <h1 className="text-xl font-semibold tracking-tight">Insights</h1>
-        <p className="text-muted-foreground mt-1 text-sm">Patterns detected automatically from the last 12 months.</p>
-      </div>
+      <PageHeader title="Insights" description="Patterns detected automatically from the last 12 months." />
 
       <Card>
         <CardHeader>

@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { formatAED, formatDate } from "@/lib/utils";
 import { TransactionCategorySelect } from "@/components/transaction-category-select";
 import type { Prisma } from "@prisma/client";
+import { PageHeader } from "@/components/page-header";
 
 const PAGE_SIZE = 50;
 
@@ -62,10 +63,7 @@ export default async function TransactionsPage({
 
   return (
     <div className="flex flex-col gap-6">
-      <div>
-        <h1 className="text-xl font-semibold tracking-tight">Transactions</h1>
-        <p className="text-muted-foreground mt-1 text-sm">{total} total</p>
-      </div>
+      <PageHeader title="Transactions" description={`${total} total`} />
 
       <Card>
         <CardContent className="pt-6">
