@@ -1,4 +1,4 @@
-import { format } from "date-fns";
+import { format, endOfMonth, subMonths } from "date-fns";
 import { db } from "@/lib/db";
 import {
   buildLiveSchedule,
@@ -25,6 +25,7 @@ import { AmortizationTable } from "@/components/amortization-table";
 import { formatAED, formatDate, formatPercent } from "@/lib/utils";
 import { Pencil } from "lucide-react";
 import { PageHeader } from "@/components/page-header";
+import { StatCard, Delta } from "@/components/stat-card";
 
 export const dynamic = "force-dynamic";
 
@@ -84,6 +85,16 @@ export default async function MortgagePage() {
 
   const percentPaid = ((mortgage.principal - balance) / mortgage.principal) * 100;
 
+  const balanceSparkline = Array.from({ length: 6 }, (_, i) => {
+    const monthEnd = endOfMonth(subMonths(today, 5 - i));
+    return outstandingBalance(schedule, monthEnd > today ? today : monthEnd);
+  });
+  const balanceDelta = balance - balanceSparkline[balanceSparkline.length - 2];
+
+  const interestThisMonth = interestPaidToDate(schedule, today) - interestPaidToDate(schedule, endOfMonth(subMonths(today, 1)));
+  const interestLastMonth =
+    interestPaidToDate(schedule, endOfMonth(subMonths(today, 1))) - interestPaidToDate(schedule, endOfMonth(subMonths(today, 2)));
+
   return (
     <div className="flex flex-col gap-6">
       <PageHeader
@@ -122,10 +133,33 @@ export default async function MortgagePage() {
       />
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard label="Outstanding balance" value={formatAED(balance)} sub={`${formatPercent(percentPaid, 1)} paid off`} />
-        <StatCard label="Next payment" value={next ? formatAED(next.payment) : "—"} sub={next ? formatDate(next.date) : "Loan complete"} />
-        <StatCard label="Interest paid to date" value={formatAED(interestToDate)} sub="since the loan started" />
-        <StatCard label="Remaining interest" value={formatAED(remainingInterest)} sub="over the rest of the term" />
+        <StatCard
+          className="lg:col-span-2"
+          label="Outstanding balance"
+          value={formatAED(balance)}
+          sub={`${formatPercent(percentPaid, 1)} paid off`}
+          delta={{ amount: balanceDelta, label: "vs last month", tone: "goodWhenDown" }}
+          sparkline={balanceSparkline}
+        />
+        <StatCard
+          className="lg:col-span-2"
+          label="Next payment"
+          value={next ? formatAED(next.payment) : "—"}
+          sub={next ? formatDate(next.date) : "Loan complete"}
+        />
+        <Card className="lg:col-span-2">
+          <CardContent className="pt-6">
+            <p className="text-muted-foreground text-xs">Interest paid to date</p>
+            <p className="mt-1 text-2xl font-semibold tabular-nums tracking-tight">{formatAED(interestToDate)}</p>
+            <Delta delta={{ amount: interestThisMonth - interestLastMonth, label: "this month vs last", tone: "goodWhenDown" }} />
+          </CardContent>
+        </Card>
+        <StatCard
+          className="lg:col-span-2"
+          label="Remaining interest"
+          value={formatAED(remainingInterest)}
+          sub="over the rest of the term"
+        />
       </div>
 
       <Card>
@@ -157,17 +191,5 @@ export default async function MortgagePage() {
         </CardContent>
       </Card>
     </div>
-  );
-}
-
-function StatCard({ label, value, sub }: { label: string; value: string; sub: string }) {
-  return (
-    <Card>
-      <CardContent className="pt-6">
-        <p className="text-muted-foreground text-xs">{label}</p>
-        <p className="mt-1 text-2xl font-semibold tabular-nums tracking-tight">{value}</p>
-        <p className="text-muted-foreground mt-1 text-xs">{sub}</p>
-      </CardContent>
-    </Card>
   );
 }

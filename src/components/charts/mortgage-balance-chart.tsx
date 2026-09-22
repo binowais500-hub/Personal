@@ -45,6 +45,7 @@ export function MortgageBalanceChart({
         <Tooltip
           contentStyle={{ background: "var(--popover)", border: "1px solid var(--border)", borderRadius: 8, fontSize: 12 }}
           formatter={(value) => [formatAED(Number(value)), "Balance"]}
+          cursor={{ stroke: "var(--border)", strokeWidth: 1 }}
         />
         <ReferenceLine
           x={todayMonth}
@@ -58,7 +59,16 @@ export function MortgageBalanceChart({
           strokeDasharray="4 4"
           label={{ value: "Rate reset", position: "insideTopLeft", fontSize: 10, fill: "var(--chart-2)" }}
         />
-        <Area type="monotone" dataKey="balance" stroke="var(--primary)" strokeWidth={2} fill="url(#balanceFill)" />
+        <Area
+          type="monotone"
+          dataKey="balance"
+          stroke="var(--primary)"
+          strokeWidth={2}
+          fill="url(#balanceFill)"
+          animationDuration={600}
+          animationEasing="ease-out"
+          activeDot={{ r: 4, strokeWidth: 0 }}
+        />
       </AreaChart>
     </ResponsiveContainer>
   );

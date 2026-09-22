@@ -23,12 +23,13 @@ export function PrincipalInterestChart({ data }: { data: YearlySplit[] }) {
           tickFormatter={(v: number) => `${Math.round(v / 1000)}k`}
         />
         <Tooltip
+          cursor={{ fill: "var(--muted)", opacity: 0.5 }}
           contentStyle={{ background: "var(--popover)", border: "1px solid var(--border)", borderRadius: 8, fontSize: 12 }}
           formatter={(value, name) => [formatAED(Number(value)), String(name)]}
         />
         <Legend wrapperStyle={{ fontSize: 12 }} />
-        <Bar dataKey="principal" name="Principal" stackId="a" fill="var(--chart-1)" />
-        <Bar dataKey="interest" name="Interest" stackId="a" fill="var(--chart-2)" />
+        <Bar dataKey="principal" name="Principal" stackId="a" fill="var(--chart-1)" radius={[2, 2, 2, 2]} animationDuration={500} animationEasing="ease-out" />
+        <Bar dataKey="interest" name="Interest" stackId="a" fill="var(--chart-2)" radius={[2, 2, 2, 2]} animationDuration={500} animationEasing="ease-out" />
       </BarChart>
     </ResponsiveContainer>
   );

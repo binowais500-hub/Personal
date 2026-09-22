@@ -1,4 +1,4 @@
-import { startOfMonth, startOfYear } from "date-fns";
+import { startOfMonth, startOfYear, endOfMonth } from "date-fns";
 import { db } from "@/lib/db";
 import { lastNMonthKeys, monthlySpendTrend, type TxnLike } from "@/lib/analytics";
 import { buildLiveSchedule, interestPaidToDate, nextPayment, outstandingBalance, toMortgageInput } from "@/lib/mortgage";
@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Progress } from "@/components/ui/progress";
 import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Sparkline } from "@/components/sparkline";
+import { StatCard, Delta } from "@/components/stat-card";
 import { ExportPdfButton } from "@/components/export-pdf-button";
 import { PageHeader } from "@/components/page-header";
 import { cn, formatAED, formatDate, formatMonthYear, formatPercent } from "@/lib/utils";
@@ -35,6 +36,8 @@ export default async function OverviewPage() {
   const totalBudget = budgets.reduce((s, b) => s + b.amountAED, 0);
   const trend = monthlySpendTrend(trendTxns, trendMonths);
   const currentMonthSpend = trend[trend.length - 1]?.total ?? 0;
+  const lastMonthSpend = trend[trend.length - 2]?.total ?? 0;
+  const spendSparkline = trend.map((p) => p.total);
   const budgetPct = totalBudget > 0 ? Math.min(100, (currentMonthSpend / totalBudget) * 100) : 0;
   const overBudget = totalBudget > 0 && currentMonthSpend > totalBudget;
 
@@ -54,6 +57,8 @@ export default async function OverviewPage() {
 
   let mortgageStats: null | {
     balance: number;
+    balanceDelta: number;
+    balanceSparkline: number[];
     next: { amount: number; date: Date } | null;
     interestThisYear: number;
   } = null;
@@ -68,56 +73,68 @@ export default async function OverviewPage() {
     const balance = outstandingBalance(schedule, now);
     const next = nextPayment(schedule, now);
     const interestThisYear = interestPaidToDate(schedule, now) - interestPaidToDate(schedule, new Date(yearStart.getTime() - 1));
-    mortgageStats = { balance, next: next ? { amount: next.payment, date: next.date } : null, interestThisYear };
+    const balanceSparkline = trendMonths.map((m) => {
+      const monthEnd = endOfMonth(new Date(`${m}-01T00:00:00`));
+      return outstandingBalance(schedule, monthEnd > now ? now : monthEnd);
+    });
+    const balanceDelta = balanceSparkline.length >= 2 ? balance - balanceSparkline[balanceSparkline.length - 2] : 0;
+    mortgageStats = {
+      balance,
+      balanceDelta,
+      balanceSparkline,
+      next: next ? { amount: next.payment, date: next.date } : null,
+      interestThisYear,
+    };
   }
 
   return (
     <div className="flex flex-col gap-6">
       <PageHeader title="Overview" description={formatMonthYear(now)} actions={<ExportPdfButton />} />
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Card className="lg:col-span-2">
           <CardContent className="pt-6">
-            <p className="text-muted-foreground text-xs">This month&apos;s card spend</p>
-            <p className="mt-1 text-2xl font-semibold tabular-nums tracking-tight">{formatAED(currentMonthSpend)}</p>
-            <p className="text-muted-foreground mt-1 text-xs">of {formatAED(totalBudget)} budgeted</p>
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <p className="text-muted-foreground text-xs">This month&apos;s card spend</p>
+                <p className="mt-1 text-2xl font-semibold tabular-nums tracking-tight">{formatAED(currentMonthSpend)}</p>
+                <p className="text-muted-foreground mt-1 text-xs">of {formatAED(totalBudget)} budgeted</p>
+                <Delta delta={{ amount: currentMonthSpend - lastMonthSpend, label: "vs last month", tone: "goodWhenDown" }} />
+              </div>
+              {spendSparkline.length > 1 && <Sparkline values={spendSparkline} width={64} height={28} />}
+            </div>
             {totalBudget > 0 && (
               <Progress value={budgetPct} indicatorClassName={cn(overBudget && "bg-destructive")} className="mt-3" />
             )}
           </CardContent>
         </Card>
 
-        <Card>
-          <CardContent className="pt-6">
-            <p className="text-muted-foreground text-xs">Mortgage balance</p>
-            <p className="mt-1 text-2xl font-semibold tabular-nums tracking-tight">
-              {mortgageStats ? formatAED(mortgageStats.balance) : "—"}
-            </p>
-            <p className="text-muted-foreground mt-1 text-xs">{mortgage ? mortgage.bankName : "Not set up"}</p>
-          </CardContent>
-        </Card>
+        <StatCard
+          className="lg:col-span-2"
+          label="Mortgage balance"
+          value={mortgageStats ? formatAED(mortgageStats.balance) : "—"}
+          sub={mortgage ? mortgage.bankName : "Not set up"}
+          delta={
+            mortgageStats
+              ? { amount: mortgageStats.balanceDelta, label: "vs last month", tone: "goodWhenDown" }
+              : undefined
+          }
+          sparkline={mortgageStats?.balanceSparkline}
+        />
 
-        <Card>
-          <CardContent className="pt-6">
-            <p className="text-muted-foreground text-xs">Next payment</p>
-            <p className="mt-1 text-2xl font-semibold tabular-nums tracking-tight">
-              {mortgageStats?.next ? formatAED(mortgageStats.next.amount) : "—"}
-            </p>
-            <p className="text-muted-foreground mt-1 text-xs">
-              {mortgageStats?.next ? formatDate(mortgageStats.next.date) : "—"}
-            </p>
-          </CardContent>
-        </Card>
+        <StatCard
+          className="lg:col-span-2"
+          label="Next payment"
+          value={mortgageStats?.next ? formatAED(mortgageStats.next.amount) : "—"}
+          sub={mortgageStats?.next ? formatDate(mortgageStats.next.date) : "—"}
+        />
 
-        <Card>
-          <CardContent className="pt-6">
-            <p className="text-muted-foreground text-xs">Interest paid this year</p>
-            <p className="mt-1 text-2xl font-semibold tabular-nums tracking-tight">
-              {mortgageStats ? formatAED(mortgageStats.interestThisYear) : "—"}
-            </p>
-            <p className="text-muted-foreground mt-1 text-xs">mortgage, year to date</p>
-          </CardContent>
-        </Card>
+        <StatCard
+          className="lg:col-span-2"
+          label="Interest paid this year"
+          value={mortgageStats ? formatAED(mortgageStats.interestThisYear) : "—"}
+          sub="mortgage, year to date"
+        />
       </div>
 
       <Card>

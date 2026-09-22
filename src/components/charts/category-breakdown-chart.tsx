@@ -31,6 +31,7 @@ export function CategoryBreakdownChart({ data }: { data: CategoryDatum[] }) {
           width={110}
         />
         <Tooltip
+          cursor={{ fill: "var(--muted)", opacity: 0.5 }}
           contentStyle={{
             background: "var(--popover)",
             border: "1px solid var(--border)",
@@ -40,8 +41,25 @@ export function CategoryBreakdownChart({ data }: { data: CategoryDatum[] }) {
           formatter={(value, name) => [formatAED(Number(value)), String(name)]}
         />
         <Legend wrapperStyle={{ fontSize: 12 }} />
-        <Bar dataKey="current" name="This month" fill="var(--primary)" radius={[0, 4, 4, 0]} barSize={12} />
-        <Bar dataKey="average" name="6-month average" fill="var(--muted-foreground)" fillOpacity={0.35} radius={[0, 4, 4, 0]} barSize={12} />
+        <Bar
+          dataKey="current"
+          name="This month"
+          fill="var(--primary)"
+          radius={[0, 4, 4, 0]}
+          barSize={12}
+          animationDuration={500}
+          animationEasing="ease-out"
+        />
+        <Bar
+          dataKey="average"
+          name="6-month average"
+          fill="var(--muted-foreground)"
+          fillOpacity={0.35}
+          radius={[0, 4, 4, 0]}
+          barSize={12}
+          animationDuration={500}
+          animationEasing="ease-out"
+        />
       </BarChart>
     </ResponsiveContainer>
   );

@@ -37,6 +37,7 @@ export function MonthlyTrendChart({
           tickFormatter={(v: number) => (v >= 1000 ? `${Math.round(v / 1000)}k` : String(v))}
         />
         <Tooltip
+          cursor={{ fill: "var(--muted)", opacity: 0.5 }}
           contentStyle={{
             background: "var(--popover)",
             border: "1px solid var(--border)",
@@ -48,7 +49,16 @@ export function MonthlyTrendChart({
         />
         <Legend wrapperStyle={{ fontSize: 12 }} />
         {cards.map((c, i) => (
-          <Bar key={c.id} dataKey={c.id} name={c.label} stackId="spend" fill={chartColor(i)} radius={[0, 0, 0, 0]} />
+          <Bar
+            key={c.id}
+            dataKey={c.id}
+            name={c.label}
+            stackId="spend"
+            fill={chartColor(i)}
+            radius={[2, 2, 2, 2]}
+            animationDuration={500}
+            animationEasing="ease-out"
+          />
         ))}
       </BarChart>
     </ResponsiveContainer>

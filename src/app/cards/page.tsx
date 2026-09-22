@@ -11,6 +11,8 @@ import { CategoryBreakdownChart } from "@/components/charts/category-breakdown-c
 import { Upload, CreditCard } from "lucide-react";
 import { PageHeader } from "@/components/page-header";
 import { EmptyState } from "@/components/empty-state";
+import { StatCard } from "@/components/stat-card";
+import { MerchantAvatar } from "@/components/merchant-avatar";
 
 export const dynamic = "force-dynamic";
 
@@ -86,7 +88,12 @@ export default async function CardsPage() {
       />
 
       <div className="grid gap-4 sm:grid-cols-3">
-        <StatCard label="This month" value={formatAED(thisMonthTotal)} sub={`vs ${formatAED(lastMonthTotal)} last month`} />
+        <StatCard
+          label="This month"
+          value={formatAED(thisMonthTotal)}
+          delta={{ amount: thisMonthTotal - lastMonthTotal, label: "vs last month", tone: "goodWhenDown" }}
+          sparkline={trendData.map((p) => p.total)}
+        />
         <StatCard label="12-month average" value={formatAED(avg12mo)} sub="per month" />
         <StatCard label="Cards tracked" value={String(cards.length)} sub={`${transactions.length} transactions on file`} />
       </div>
@@ -166,7 +173,12 @@ export default async function CardsPage() {
               <TableBody>
                 {merchants.map((m) => (
                   <TableRow key={m.merchantNormalized}>
-                    <TableCell className="max-w-48 truncate">{m.merchantNormalized}</TableCell>
+                    <TableCell className="max-w-48">
+                      <div className="flex items-center gap-2">
+                        <MerchantAvatar name={m.merchantNormalized} />
+                        <span className="truncate">{m.merchantNormalized}</span>
+                      </div>
+                    </TableCell>
                     <TableCell className="text-right tabular-nums">{m.count}</TableCell>
                     <TableCell className="text-right tabular-nums">{formatAED(m.total)}</TableCell>
                   </TableRow>
@@ -184,17 +196,5 @@ export default async function CardsPage() {
         </Card>
       </div>
     </div>
-  );
-}
-
-function StatCard({ label, value, sub }: { label: string; value: string; sub: string }) {
-  return (
-    <Card>
-      <CardContent className="pt-6">
-        <p className="text-muted-foreground text-xs">{label}</p>
-        <p className="mt-1 text-2xl font-semibold tabular-nums tracking-tight">{value}</p>
-        <p className="text-muted-foreground mt-1 text-xs">{sub}</p>
-      </CardContent>
-    </Card>
   );
 }
