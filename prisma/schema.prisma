@@ -1,0 +1,161 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+/// Singleton row (id = "singleton") holding the app password and defaults.
+model AppSettings {
+  id              String   @id @default("singleton")
+  passwordHash    String
+  defaultCurrency String   @default("AED")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model Card {
+  id        String   @id @default(cuid())
+  bankName  String
+  cardName  String
+  last4     String
+  currency  String   @default("AED")
+  color     String   @default("#0f6e5b")
+  createdAt DateTime @default(now())
+
+  transactions  Transaction[]
+  importBatches ImportBatch[]
+  mappings      ColumnMapping[]
+
+  @@unique([bankName, last4])
+}
+
+/// Remembers how to map a bank's statement columns, per bank + file type.
+model ColumnMapping {
+  id          String   @id @default(cuid())
+  bankName    String
+  fileType    String // "csv" | "excel" | "pdf"
+  cardId      String?
+  card        Card?    @relation(fields: [cardId], references: [id], onDelete: SetNull)
+  mappingJson String // JSON: { date, description, amount, currency?, foreignAmount?, debitCredit? }
+  dateFormat  String // e.g. "dd/MM/yyyy"
+  delimiter   String? // csv only
+  skipRows    Int      @default(0)
+  amountSign  String   @default("spend_positive") // "spend_positive" | "spend_negative"
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([bankName, fileType])
+}
+
+model ImportBatch {
+  id                String   @id @default(cuid())
+  cardId            String
+  card              Card     @relation(fields: [cardId], references: [id], onDelete: Cascade)
+  fileName          String
+  fileType          String
+  importedAt        DateTime @default(now())
+  rowCount          Int
+  skippedDuplicates Int      @default(0)
+
+  transactions Transaction[]
+}
+
+model Category {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  color     String   @default("#64748b")
+  icon      String   @default("circle")
+  isSystem  Boolean  @default(false)
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+
+  rules        CategoryRule[]
+  transactions Transaction[]
+  budgets      Budget[]
+}
+
+model CategoryRule {
+  id         String   @id @default(cuid())
+  pattern    String // substring or /regex/ matched against merchant name, case-insensitive
+  categoryId String
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  priority   Int      @default(0)
+  source     String   @default("user") // "seed" | "user" | "learned"
+  hitCount   Int      @default(0)
+  createdAt  DateTime @default(now())
+
+  @@index([pattern])
+}
+
+model Transaction {
+  id                 String   @id @default(cuid())
+  cardId             String
+  card               Card     @relation(fields: [cardId], references: [id], onDelete: Cascade)
+  date               DateTime
+  postedDate         DateTime?
+  description        String
+  merchantRaw        String
+  merchantNormalized String
+  // Sign convention: positive = spend/charge, negative = payment/refund/credit
+  amountAED          Float
+  amountOriginal     Float
+  currencyOriginal   String   @default("AED")
+  fxFee              Float?
+  categoryId         String?
+  category           Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  isRecurring        Boolean  @default(false)
+  isUnusual          Boolean  @default(false)
+  categoryIsManual   Boolean  @default(false)
+  dedupeHash         String
+  importBatchId      String
+  importBatch        ImportBatch @relation(fields: [importBatchId], references: [id], onDelete: Cascade)
+  notes              String?
+  createdAt          DateTime @default(now())
+
+  @@unique([cardId, dedupeHash])
+  @@index([date])
+  @@index([merchantNormalized])
+}
+
+model Budget {
+  id         String   @id @default(cuid())
+  categoryId String   @unique
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  amountAED  Float
+  updatedAt  DateTime @updatedAt
+}
+
+model Mortgage {
+  id                       String   @id @default(cuid())
+  bankName                 String
+  principal                Float
+  startDate                DateTime
+  tenorMonths              Int
+  fixedRateAPR             Float // percent, e.g. 3.99
+  fixedPeriodEndDate       DateTime
+  marginBps                Int // basis points over EIBOR, e.g. 210 = 2.10%
+  eiborAssumptionBps       Int // current EIBOR assumption in basis points
+  monthlyPayment           Float // manually entered scheduled payment (fixed period)
+  earlySettlementFeeCapPct Float    @default(1.0)
+  createdAt                DateTime @default(now())
+  updatedAt                DateTime @updatedAt
+
+  payments MortgagePayment[]
+}
+
+model MortgagePayment {
+  id                String   @id @default(cuid())
+  mortgageId        String
+  mortgage          Mortgage @relation(fields: [mortgageId], references: [id], onDelete: Cascade)
+  date              DateTime
+  amount            Float
+  type              String // "scheduled" | "extra" | "lump_sum"
+  principalPortion  Float?
+  interestPortion   Float?
+  feeCharged        Float?
+  notes             String?
+  createdAt         DateTime @default(now())
+}
