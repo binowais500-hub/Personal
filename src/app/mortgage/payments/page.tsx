@@ -1,6 +1,9 @@
+import Link from "next/link";
+import { Upload } from "lucide-react";
 import { db } from "@/lib/db";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { AddMortgagePaymentDialog } from "@/components/add-mortgage-payment-dialog";
 import { DeleteMortgagePaymentButton } from "@/components/delete-mortgage-payment-button";
 import { formatAED, formatDate } from "@/lib/utils";
@@ -36,7 +39,16 @@ export default async function MortgagePaymentsPage() {
       <PageHeader
         title="Payment log"
         description={`${formatAED(totalPaid)} paid in total · ${formatAED(totalExtra)} in extra/lump-sum payments`}
-        actions={<AddMortgagePaymentDialog mortgageId={mortgage.id} />}
+        actions={
+          <>
+            <Link href="/mortgage/payments/import">
+              <Button variant="outline">
+                <Upload className="size-4" /> Import statement
+              </Button>
+            </Link>
+            <AddMortgagePaymentDialog mortgageId={mortgage.id} />
+          </>
+        }
       />
 
       <div className="overflow-hidden rounded-md border border-border/60">

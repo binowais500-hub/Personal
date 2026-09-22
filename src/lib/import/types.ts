@@ -10,6 +10,9 @@ export interface MappingConfig {
   foreignAmountColumn?: string;
   /** Some UAE bank statements print the FX markup/fee as its own column. */
   feeColumn?: string;
+  /** Mortgage statements: principal/interest split, if the bank prints it. */
+  principalColumn?: string;
+  interestColumn?: string;
   /**
    * PDF only: a regex with named groups matched against each extracted line,
    * e.g. `^(?<date>\d{2}/\d{2}/\d{4})\s+(?<description>.+?)\s+(?<amount>-?[\d,]+\.\d{2})\s*(?<currency>[A-Z]{3})?$`
@@ -33,6 +36,8 @@ export interface ParsedRow {
   amountOriginal: number | null;
   currencyOriginal: string;
   fxFee: number | null;
+  principalPortion: number | null;
+  interestPortion: number | null;
   error?: string;
 }
 

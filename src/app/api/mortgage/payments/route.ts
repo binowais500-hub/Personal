@@ -13,6 +13,16 @@ const schema = z.object({
   notes: z.string().nullable().optional(),
 });
 
+export async function GET(req: NextRequest) {
+  const mortgageId = req.nextUrl.searchParams.get("mortgageId");
+  if (!mortgageId) return NextResponse.json({ error: "mortgageId is required" }, { status: 400 });
+  const payments = await db.mortgagePayment.findMany({
+    where: { mortgageId },
+    select: { date: true, amount: true },
+  });
+  return NextResponse.json({ payments });
+}
+
 export async function POST(req: NextRequest) {
   const parsed = schema.safeParse(await req.json());
   if (!parsed.success) {

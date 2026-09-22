@@ -151,6 +151,7 @@ export default function ImportPage() {
       const form = new FormData();
       form.append("file", file);
       form.append("bankName", bankName);
+      form.append("context", "card");
       const res = await fetch("/api/import/parse", { method: "POST", body: form });
       const data = await res.json();
       if (!res.ok) {

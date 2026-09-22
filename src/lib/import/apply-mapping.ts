@@ -38,6 +38,8 @@ function applyTableMapping(rawRows: string[][], mapping: MappingConfig): ParsedR
   const currencyIdx = findColumnIndex(headerRow, mapping.currencyColumn);
   const foreignIdx = findColumnIndex(headerRow, mapping.foreignAmountColumn);
   const feeIdx = findColumnIndex(headerRow, mapping.feeColumn);
+  const principalIdx = findColumnIndex(headerRow, mapping.principalColumn);
+  const interestIdx = findColumnIndex(headerRow, mapping.interestColumn);
 
   return dataRows
     .filter((row) => row.some((cell) => (cell ?? "").trim()))
@@ -49,6 +51,8 @@ function applyTableMapping(rawRows: string[][], mapping: MappingConfig): ParsedR
       const currencyOriginal = currencyIdx >= 0 ? (row[currencyIdx] ?? "").trim().toUpperCase() || "AED" : "AED";
       const foreignAmountRaw = foreignIdx >= 0 ? row[foreignIdx] : undefined;
       const feeRaw = feeIdx >= 0 ? row[feeIdx] : undefined;
+      const principalRaw = principalIdx >= 0 ? row[principalIdx] : undefined;
+      const interestRaw = interestIdx >= 0 ? row[interestIdx] : undefined;
 
       let date: string | null = null;
       let error: string | undefined;
@@ -67,6 +71,8 @@ function applyTableMapping(rawRows: string[][], mapping: MappingConfig): ParsedR
 
       const foreignAmount = parseAmount(foreignAmountRaw);
       const fxFee = parseAmount(feeRaw);
+      const principalPortion = parseAmount(principalRaw);
+      const interestPortion = parseAmount(interestRaw);
 
       return {
         rowIndex: i,
@@ -77,6 +83,8 @@ function applyTableMapping(rawRows: string[][], mapping: MappingConfig): ParsedR
         amountOriginal: foreignAmount ?? amount,
         currencyOriginal,
         fxFee: fxFee != null ? Math.abs(fxFee) : null,
+        principalPortion: principalPortion != null ? Math.abs(principalPortion) : null,
+        interestPortion: interestPortion != null ? Math.abs(interestPortion) : null,
         error,
       };
     });
@@ -101,7 +109,7 @@ function applyPdfMapping(rawRows: string[][], mapping: MappingConfig): ParsedRow
     const m = line.match(re);
     if (!m || !m.groups) return; // non-transaction lines (headers/footers/page numbers) are silently skipped
 
-    const { date: dateStr, description, amount: amountStr, currency } = m.groups;
+    const { date: dateStr, description, amount: amountStr, currency, principal: principalStr, interest: interestStr } = m.groups;
     let date: string | null = null;
     let error: string | undefined;
 
@@ -126,6 +134,8 @@ function applyPdfMapping(rawRows: string[][], mapping: MappingConfig): ParsedRow
       amountOriginal: amount,
       currencyOriginal: (currency ?? "AED").trim().toUpperCase() || "AED",
       fxFee: null,
+      principalPortion: principalStr != null ? parseAmount(principalStr) : null,
+      interestPortion: interestStr != null ? parseAmount(interestStr) : null,
       error,
     });
   });
@@ -134,15 +144,20 @@ function applyPdfMapping(rawRows: string[][], mapping: MappingConfig): ParsedRow
 }
 
 const HEADER_GUESSES: Record<
-  keyof Pick<MappingConfig, "dateColumn" | "descriptionColumn" | "amountColumn" | "currencyColumn" | "foreignAmountColumn" | "feeColumn">,
+  keyof Pick<
+    MappingConfig,
+    "dateColumn" | "descriptionColumn" | "amountColumn" | "currencyColumn" | "foreignAmountColumn" | "feeColumn" | "principalColumn" | "interestColumn"
+  >,
   string[]
 > = {
-  dateColumn: ["date", "transaction date", "txn date", "posting date", "value date"],
+  dateColumn: ["date", "transaction date", "txn date", "posting date", "value date", "payment date"],
   descriptionColumn: ["description", "merchant", "details", "narration", "transaction details", "particulars"],
-  amountColumn: ["amount", "amount (aed)", "aed amount", "billing amount", "debit"],
+  amountColumn: ["amount", "amount (aed)", "aed amount", "billing amount", "debit", "payment amount", "installment"],
   currencyColumn: ["currency", "billing currency", "txn currency", "original currency"],
   foreignAmountColumn: ["foreign amount", "original amount", "txn amount"],
   feeColumn: ["fx fee", "fee", "markup", "conversion fee", "cross currency fee"],
+  principalColumn: ["principal", "principal amount", "principal paid"],
+  interestColumn: ["interest", "interest amount", "interest paid"],
 };
 
 /** Best-effort auto-suggestion for a fresh bank the app hasn't seen a mapping for yet. */

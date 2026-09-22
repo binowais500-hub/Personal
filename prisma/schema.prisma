@@ -37,9 +37,10 @@ model ColumnMapping {
   id          String   @id @default(cuid())
   bankName    String
   fileType    String // "csv" | "excel" | "pdf"
+  context     String   @default("card") // "card" | "mortgage" — same bank, different statement layout
   cardId      String?
   card        Card?    @relation(fields: [cardId], references: [id], onDelete: SetNull)
-  mappingJson String // JSON: { date, description, amount, currency?, foreignAmount?, debitCredit? }
+  mappingJson String // JSON: { date, description?, amount, currency?, foreignAmount?, feeColumn?, principalColumn?, interestColumn?, lineRegex? }
   dateFormat  String // e.g. "dd/MM/yyyy"
   delimiter   String? // csv only
   skipRows    Int      @default(0)
@@ -47,7 +48,7 @@ model ColumnMapping {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  @@unique([bankName, fileType])
+  @@unique([bankName, fileType, context])
 }
 
 model ImportBatch {

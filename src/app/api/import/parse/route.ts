@@ -10,6 +10,7 @@ export async function POST(req: NextRequest) {
   const form = await req.formData();
   const file = form.get("file");
   const bankName = String(form.get("bankName") ?? "").trim();
+  const context = String(form.get("context") ?? "card").trim() || "card";
 
   if (!(file instanceof File)) {
     return NextResponse.json({ error: "No file uploaded" }, { status: 400 });
@@ -35,7 +36,7 @@ export async function POST(req: NextRequest) {
   }
 
   const existingMapping = await db.columnMapping.findUnique({
-    where: { bankName_fileType: { bankName, fileType: parsed.fileType } },
+    where: { bankName_fileType_context: { bankName, fileType: parsed.fileType, context } },
   });
 
   return NextResponse.json({

@@ -52,9 +52,9 @@ export async function POST(req: NextRequest) {
 
   const { fileType, dateFormat, delimiter, skipRows, amountSign, ...rest } = mapping;
   await db.columnMapping.upsert({
-    where: { bankName_fileType: { bankName, fileType } },
+    where: { bankName_fileType_context: { bankName, fileType, context: "card" } },
     update: { mappingJson: JSON.stringify(rest), dateFormat, delimiter, skipRows, amountSign, cardId },
-    create: { bankName, fileType, mappingJson: JSON.stringify(rest), dateFormat, delimiter, skipRows, amountSign, cardId },
+    create: { bankName, fileType, context: "card", mappingJson: JSON.stringify(rest), dateFormat, delimiter, skipRows, amountSign, cardId },
   });
 
   const batch = await db.importBatch.create({
