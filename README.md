@@ -90,6 +90,13 @@ All of them use Claude Opus 5.
   local database and return aggregates, then explains the result. Every
   reply has a "Numbers used" disclosure showing exactly which function ran
   and what it returned, so you can verify the numbers yourself.
+- **AI category suggestions** (statement import) — when a merchant in an
+  imported statement doesn't match any existing category rule, click
+  "Suggest categories with AI" to get a suggested category per unknown
+  merchant, sent as just the merchant name plus your list of category
+  names. Click "Use" to confirm one: it applies to every row from that
+  merchant in the current import, saves as a rule for next time, and never
+  asks again for that merchant — a true confirm-once flow.
 
 **What gets sent, and what doesn't:** the Insights feed and Monthly review
 only ever send locally-computed aggregates — category totals,
@@ -104,7 +111,10 @@ page load. Ask my finances follows the same rule a different way: Claude
 never has direct data access — it can only call the fixed set of read-only
 functions in `src/lib/ai/tools.ts`, each of which returns an aggregate
 (never a raw transaction), and the app shows you exactly which functions
-ran and what they returned for every answer.
+ran and what they returned for every answer. Category suggestions send
+even less: only a merchant name and your category names, never an amount,
+date, or anything else — cached per-merchant so the same merchant is never
+re-suggested (see `src/lib/ai/categorize-suggest.ts`).
 
 ## Tech stack
 

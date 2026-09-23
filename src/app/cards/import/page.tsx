@@ -3,7 +3,7 @@
 import * as React from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { UploadCloud, FileText, FileSpreadsheet, File as FileIcon, ArrowLeft, ArrowRight, Plus } from "lucide-react";
+import { UploadCloud, FileText, FileSpreadsheet, File as FileIcon, ArrowLeft, ArrowRight, Plus, Sparkles, Check, X, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -98,13 +98,22 @@ export default function ImportPage() {
     null,
   );
 
+  const [suggestions, setSuggestions] = React.useState<Record<string, { categoryId: string; categoryName: string } | null>>({});
+  const [dismissedMerchants, setDismissedMerchants] = React.useState<Set<string>>(new Set());
+  const [suggesting, setSuggesting] = React.useState(false);
+  const [confirmingMerchant, setConfirmingMerchant] = React.useState<string | null>(null);
+
+  function loadCategories() {
+    return fetch("/api/categories")
+      .then((r) => r.json())
+      .then((d) => setCategories(d.categories ?? []));
+  }
+
   React.useEffect(() => {
     fetch("/api/cards")
       .then((r) => r.json())
       .then((d) => setCards(d.cards ?? []));
-    fetch("/api/categories")
-      .then((r) => r.json())
-      .then((d) => setCategories(d.categories ?? []));
+    loadCategories();
   }, []);
 
   const selectedCard = cards.find((c) => c.id === selectedCardId);
@@ -193,14 +202,85 @@ export default function ImportPage() {
 
   const categorizedRows = React.useMemo(() => {
     return previewRows.map((row) => {
-      if (rowCategoryOverrides[row.rowIndex] !== undefined) {
-        return { ...row, categoryId: rowCategoryOverrides[row.rowIndex] };
-      }
       const merchantNormalized = normalizeMerchant(row.description);
+      if (rowCategoryOverrides[row.rowIndex] !== undefined) {
+        return { ...row, merchantNormalized, categoryId: rowCategoryOverrides[row.rowIndex] };
+      }
       const match = allRules.length ? matchCategoryRule(merchantNormalized, allRules) : null;
-      return { ...row, categoryId: match?.categoryId ?? null };
+      return { ...row, merchantNormalized, categoryId: match?.categoryId ?? null };
     });
   }, [previewRows, allRules, rowCategoryOverrides]);
+
+  // Unique merchants with no rule match and no manual override yet, in row order.
+  const unknownMerchants = React.useMemo(() => {
+    const seen = new Set<string>();
+    const result: string[] = [];
+    for (const row of categorizedRows) {
+      if (row.error || row.categoryId !== null) continue;
+      if (seen.has(row.merchantNormalized)) continue;
+      seen.add(row.merchantNormalized);
+      result.push(row.merchantNormalized);
+    }
+    return result;
+  }, [categorizedRows]);
+
+  const pendingSuggestionMerchants = unknownMerchants.filter(
+    (m) => suggestions[m] === undefined && !dismissedMerchants.has(m),
+  );
+  const activeSuggestions = unknownMerchants.filter((m) => suggestions[m] && !dismissedMerchants.has(m));
+
+  async function handleSuggestCategories() {
+    if (pendingSuggestionMerchants.length === 0) return;
+    setSuggesting(true);
+    try {
+      const res = await fetch("/api/ai/suggest-category", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ merchants: pendingSuggestionMerchants }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        toast.error(data.error ?? "Could not get suggestions");
+        return;
+      }
+      if (!data.configured) {
+        toast.error("Add ANTHROPIC_API_KEY to your .env file to use AI category suggestions");
+        return;
+      }
+      setSuggestions((prev) => ({ ...prev, ...data.suggestions }));
+    } catch {
+      toast.error("Could not reach the AI — try again");
+    } finally {
+      setSuggesting(false);
+    }
+  }
+
+  async function handleConfirmSuggestion(merchant: string) {
+    const suggestion = suggestions[merchant];
+    if (!suggestion) return;
+    setConfirmingMerchant(merchant);
+    try {
+      const res = await fetch("/api/ai/confirm-category", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ merchant, categoryId: suggestion.categoryId }),
+      });
+      if (!res.ok) {
+        toast.error("Could not save that category");
+        return;
+      }
+      // Refresh rules so every row from this merchant (this batch, and any
+      // future import) picks up the new rule automatically.
+      await loadCategories();
+      toast.success(`${merchant} will be categorized as ${suggestion.categoryName} from now on`);
+    } finally {
+      setConfirmingMerchant(null);
+    }
+  }
+
+  function handleDismissSuggestion(merchant: string) {
+    setDismissedMerchants((prev) => new Set(prev).add(merchant));
+  }
 
   async function handleGoToPreview() {
     if (!selectedCard) return;
@@ -566,6 +646,57 @@ export default function ImportPage() {
             </CardDescription>
           </CardHeader>
           <CardContent className="flex flex-col gap-4">
+            {unknownMerchants.length > 0 && (
+              <div className="border-border/60 bg-muted/30 flex flex-col gap-3 rounded-md border p-3">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <p className="text-sm">
+                    <span className="font-medium">{unknownMerchants.length}</span> merchant
+                    {unknownMerchants.length === 1 ? "" : "s"} {unknownMerchants.length === 1 ? "doesn't" : "don't"} match any
+                    category rule yet.
+                  </p>
+                  {pendingSuggestionMerchants.length > 0 && (
+                    <Button type="button" size="sm" variant="outline" onClick={handleSuggestCategories} disabled={suggesting}>
+                      {suggesting ? <Loader2 className="size-3.5 animate-spin" /> : <Sparkles className="size-3.5" />}
+                      Suggest categories with AI
+                    </Button>
+                  )}
+                </div>
+                {activeSuggestions.length > 0 && (
+                  <div className="flex flex-col gap-2">
+                    {activeSuggestions.map((merchant) => {
+                      const suggestion = suggestions[merchant];
+                      if (!suggestion) return null;
+                      return (
+                        <div
+                          key={merchant}
+                          className="bg-background flex flex-wrap items-center justify-between gap-2 rounded-md border border-border/60 px-3 py-2 text-sm"
+                        >
+                          <span className="min-w-0 truncate">
+                            <span className="font-medium">{merchant}</span>
+                            <span className="text-muted-foreground"> → suggested: </span>
+                            <Badge variant="outline">{suggestion.categoryName}</Badge>
+                          </span>
+                          <div className="flex shrink-0 gap-1.5">
+                            <Button
+                              type="button"
+                              size="sm"
+                              variant="outline"
+                              disabled={confirmingMerchant === merchant}
+                              onClick={() => handleConfirmSuggestion(merchant)}
+                            >
+                              <Check className="size-3.5" /> Use
+                            </Button>
+                            <Button type="button" size="sm" variant="ghost" onClick={() => handleDismissSuggestion(merchant)}>
+                              <X className="size-3.5" />
+                            </Button>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            )}
             <div className="max-h-[28rem] overflow-y-auto rounded-md border border-border/60">
               <Table>
                 <TableHeader>
