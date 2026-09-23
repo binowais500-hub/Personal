@@ -8,6 +8,7 @@ import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, Table
 import { Sparkline } from "@/components/sparkline";
 import { StatCard, Delta } from "@/components/stat-card";
 import { ExportPdfButton } from "@/components/export-pdf-button";
+import { InsightsFeed } from "@/components/insights-feed";
 import { PageHeader } from "@/components/page-header";
 import { cn, formatAED, formatDate, formatMonthYear, formatPercent } from "@/lib/utils";
 import Link from "next/link";
@@ -90,6 +91,8 @@ export default async function OverviewPage() {
   return (
     <div className="flex flex-col gap-6">
       <PageHeader title="Overview" description={formatMonthYear(now)} actions={<ExportPdfButton />} />
+
+      <InsightsFeed />
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Card className="lg:col-span-2">

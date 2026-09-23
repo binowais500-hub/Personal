@@ -2,9 +2,10 @@
 
 A private, local-only dashboard for tracking UAE credit card spending and a
 mortgage. Everything runs on your own machine: the database is a single
-SQLite file on disk, there are no cloud services, no bank logins, and no
-external APIs — the app never makes an outbound network request with your
-financial data.
+SQLite file on disk, there are no cloud services and no bank logins. The
+only optional exception is AI insights (see below) — off by default, and
+even when enabled it only ever sends locally-computed spending aggregates
+to the Claude API, never raw transactions or account details.
 
 ## Quick start
 
@@ -30,6 +31,12 @@ To start over with a clean database and fresh demo data:
 ```bash
 npm run db:reset
 ```
+
+**AI features are optional.** To enable them, copy `.env.example` to `.env`
+(if you don't already have one) and set `ANTHROPIC_API_KEY=sk-ant-...`
+(get a key at [console.anthropic.com](https://console.anthropic.com/settings/keys)),
+then restart `npm run dev`. Without a key, every AI feature degrades to
+"off" — the rest of the app is unaffected.
 
 ## What it does
 
@@ -65,12 +72,31 @@ npm run db:reset
   the top right (uses your browser's native print-to-PDF, no server round
   trip).
 
+## AI features (optional)
+
+Set `ANTHROPIC_API_KEY` in `.env` to turn these on — see Quick start above.
+All of them use Claude Opus 5.
+
+- **Insights feed** (home page) — 3-5 plain-English observations about your
+  spending each month ("spend is down 57% vs last month", "an unusual
+  charge at X"), each linking to the page with the underlying data.
+
+**What gets sent, and what doesn't:** only locally-computed aggregates —
+category totals, month-over-month trends, merchant names with visit counts
+and totals, recurring-charge summaries, and your mortgage balance/payment
+figures. Raw transaction descriptions, card numbers, account numbers, and
+transaction IDs are never included; see `src/lib/ai/types.ts` for the exact
+shape sent, and `src/lib/ai/types.test.ts` for a test that guards it. Each
+month's insights are cached locally (`AiCache` table) keyed to a hash of
+that month's aggregates, so they're only regenerated when your data
+actually changes, not on every page load.
+
 ## Tech stack
 
 Next.js (App Router) + TypeScript, Tailwind CSS v4, Radix UI primitives
 (hand-built in the shadcn/ui style), Recharts, Prisma + SQLite, `date-fns`,
 `papaparse`/`xlsx`/`pdf-parse` for statement parsing, `jose` + `bcryptjs`
-for the password lock.
+for the password lock, `@anthropic-ai/sdk` for the optional AI features.
 
 ## Development
 
@@ -98,6 +124,9 @@ for the spend/insights math.
   patches for its own registry listing; since this app only ever parses
   spreadsheet files you choose to upload yourself, the risk is low, but
   worth knowing if you're auditing dependencies.
+- AI features are entirely opt-in (see above). With no `ANTHROPIC_API_KEY`
+  set, the app makes zero outbound requests related to AI — this is
+  checked before any request is built, not just before it's sent.
 
 ## Project structure
 

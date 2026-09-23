@@ -160,3 +160,19 @@ model MortgagePayment {
   notes             String?
   createdAt         DateTime @default(now())
 }
+
+/// Caches Claude API responses so the same aggregate snapshot isn't re-sent
+/// on every page load. A row is reused as long as inputHash matches — the
+/// hash of the locally-computed aggregates (never raw transactions) that
+/// were sent to the model.
+model AiCache {
+  id         String   @id @default(cuid())
+  kind       String // e.g. "overview-insights"
+  periodKey  String // e.g. "2026-09"
+  inputHash  String
+  resultJson String
+  model      String
+  createdAt  DateTime @default(now())
+
+  @@unique([kind, periodKey, inputHash])
+}
