@@ -80,16 +80,31 @@ All of them use Claude Opus 5.
 - **Insights feed** (home page) — 3-5 plain-English observations about your
   spending each month ("spend is down 57% vs last month", "an unusual
   charge at X"), each linking to the page with the underlying data.
+- **Monthly review** — a one-page written summary of the month (spending
+  vs. budget, subscriptions, anything unusual, mortgage), exportable to PDF
+  with the same print button as the Overview page.
+- **Ask my finances** — a chat that answers questions about your spending
+  and mortgage. Claude never queries your data directly: it calls a small
+  fixed set of local, read-only functions (e.g. "spend in category X for
+  month Y", "compare two months", "mortgage status") that run against your
+  local database and return aggregates, then explains the result. Every
+  reply has a "Numbers used" disclosure showing exactly which function ran
+  and what it returned, so you can verify the numbers yourself.
 
-**What gets sent, and what doesn't:** only locally-computed aggregates —
-category totals, month-over-month trends, merchant names with visit counts
-and totals, recurring-charge summaries, and your mortgage balance/payment
-figures. Raw transaction descriptions, card numbers, account numbers, and
-transaction IDs are never included; see `src/lib/ai/types.ts` for the exact
-shape sent, and `src/lib/ai/types.test.ts` for a test that guards it. Each
-month's insights are cached locally (`AiCache` table) keyed to a hash of
-that month's aggregates, so they're only regenerated when your data
-actually changes, not on every page load.
+**What gets sent, and what doesn't:** the Insights feed and Monthly review
+only ever send locally-computed aggregates — category totals,
+month-over-month trends, merchant names with visit counts and totals,
+recurring-charge summaries, and your mortgage balance/payment figures. Raw
+transaction descriptions, card numbers, account numbers, and transaction
+IDs are never included; see `src/lib/ai/types.ts` for the exact shape sent,
+and `src/lib/ai/types.test.ts` for a test that guards it. Both are cached
+locally (`AiCache` table) keyed to a hash of that month's aggregates, so
+they're only regenerated when your data actually changes, not on every
+page load. Ask my finances follows the same rule a different way: Claude
+never has direct data access — it can only call the fixed set of read-only
+functions in `src/lib/ai/tools.ts`, each of which returns an aggregate
+(never a raw transaction), and the app shows you exactly which functions
+ran and what they returned for every answer.
 
 ## Tech stack
 

@@ -10,6 +10,8 @@ import {
   SlidersHorizontal,
   Calculator,
   History,
+  NotebookText,
+  Bot,
   type LucideIcon,
 } from "lucide-react";
 
@@ -27,7 +29,11 @@ export interface NavSection {
 export const NAV_SECTIONS: NavSection[] = [
   {
     label: "Overview",
-    items: [{ href: "/", label: "Overview", icon: LayoutDashboard }],
+    items: [
+      { href: "/", label: "Overview", icon: LayoutDashboard },
+      { href: "/review", label: "Monthly review", icon: NotebookText },
+      { href: "/ask", label: "Ask my finances", icon: Bot },
+    ],
   },
   {
     label: "Credit cards",
