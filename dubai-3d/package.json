@@ -1,0 +1,30 @@
+{
+  "name": "dubai-3d",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "data": "python3 pipeline/fetch_overture.py && python3 pipeline/fetch_dem.py && python3 pipeline/build_layers.py && bash pipeline/build_tiles.sh",
+    "data:rebuild": "python3 pipeline/build_layers.py && bash pipeline/build_tiles.sh",
+    "paint": "node pipeline/paint/paint.mjs",
+    "paint:estimate": "node pipeline/paint/paint.mjs --estimate",
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "shoot": "node scripts/shoot.mjs"
+  },
+  "dependencies": {
+    "earcut": "^3.2.4",
+    "maplibre-gl": "^6.18.0",
+    "pmtiles": "^4.5.0",
+    "suncalc": "^2.1.4",
+    "three": "^0.187.0"
+  },
+  "devDependencies": {
+    "@types/earcut": "^3.0.0",
+    "@types/suncalc": "^1.9.2",
+    "@types/three": "^0.187.0",
+    "typescript": "^5.9.3",
+    "vite": "^7.3.8"
+  }
+}

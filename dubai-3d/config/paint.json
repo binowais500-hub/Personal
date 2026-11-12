@@ -1,0 +1,44 @@
+{
+  "_note": "AI 'painted' ground layer. Prices are rough USD per image as of writing: check your provider's current pricing and model ids before a full run.",
+  "zoom": 16,
+  "renderCorePx": 1024,
+  "renderMarginPx": 128,
+  "imageSize": 1024,
+  "outputMaxZoom": 18,
+  "outputMinZoom": 12,
+  "seed": 20240917,
+  "pilotCenter": [
+    55.2744,
+    25.1955
+  ],
+  "provider": "gemini",
+  "prompt": "Repaint this map tile as a hand-painted miniature city illustration in soft gouache and watercolour, top-down orthographic view. Keep every road, coastline, canal, water body, park outline and building footprint exactly where it is in the input image: same geometry, same widths, same positions. Style: warm off-white and pale sand ground, clean light-grey roads with crisp white edges, lush green lawns dotted with small round trees and palms, turquoise shallow water near the shore deepening to rich blue, golden sandy beaches, soft painterly texture. No text, no labels, no cast shadows, no perspective, no vehicles, no added buildings, no borders.",
+  "providers": {
+    "gemini": {
+      "model": "gemini-2.5-flash-image",
+      "env": "GEMINI_API_KEY",
+      "pricePerImageUSD": 0.04,
+      "secondsPerImage": 12
+    },
+    "openai": {
+      "model": "gpt-image-1",
+      "quality": "medium",
+      "env": "OPENAI_API_KEY",
+      "pricePerImageUSD": 0.07,
+      "secondsPerImage": 30
+    },
+    "replicate": {
+      "model": "black-forest-labs/flux-canny-pro",
+      "env": "REPLICATE_API_TOKEN",
+      "pricePerImageUSD": 0.05,
+      "secondsPerImage": 15
+    },
+    "identity": {
+      "model": "none (pipeline test, no AI)",
+      "env": "PATH",
+      "pricePerImageUSD": 0,
+      "secondsPerImage": 0
+    }
+  },
+  "_render_note": "Each z{zoom} tile is rendered at an integer MapLibre zoom (core = renderCorePx, pixel-aligned, no seams) plus renderMarginPx of neighbours per side, then scaled to imageSize for the model."
+}

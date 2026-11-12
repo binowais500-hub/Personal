@@ -1,0 +1,195 @@
+{
+ "_note": "Hand overrides. lon/lat must fall inside (or within `radius` m of) the landmark's OSM/Overture footprint. height in metres overrides data; shape: 'data' (use footprint / building parts), 'torus' (Museum of the Future), 'frame' (Dubai Frame). Cards show name, height, year. `match`: Overture/OSM building names or GERS id prefixes, searched within 800 m (all matches get the landmark).",
+ "landmarks": [
+  {
+   "id": "burj_khalifa",
+   "name": "Burj Khalifa",
+   "name_ar": "برج خليفة",
+   "lon": 55.27437,
+   "lat": 25.19719,
+   "height": 828,
+   "year": 2010,
+   "shape": "data",
+   "radius": 40,
+   "match": [
+    "Burj Khalifa"
+   ]
+  },
+  {
+   "id": "address_downtown",
+   "name": "Address Downtown",
+   "name_ar": "العنوان داون تاون",
+   "lon": 55.27861,
+   "lat": 25.19429,
+   "height": 306,
+   "year": 2008,
+   "shape": "data",
+   "radius": 30,
+   "match": [
+    "The Address - Downtown Dubai"
+   ]
+  },
+  {
+   "id": "address_boulevard",
+   "name": "Address Boulevard",
+   "name_ar": "العنوان بوليفارد",
+   "lon": 55.27609,
+   "lat": 25.2009,
+   "height": 370,
+   "year": 2017,
+   "shape": "data",
+   "radius": 35,
+   "match": [
+    "Address Boulevard"
+   ]
+  },
+  {
+   "id": "emirates_office_tower",
+   "name": "Emirates Office Tower",
+   "name_ar": "برج الإمارات للمكاتب",
+   "lon": 55.28363,
+   "lat": 25.21762,
+   "height": 355,
+   "year": 2000,
+   "shape": "data",
+   "radius": 35,
+   "match": [
+    "35ce9f81"
+   ]
+  },
+  {
+   "id": "emirates_towers_hotel",
+   "name": "Jumeirah Emirates Towers Hotel",
+   "name_ar": "فندق أبراج الإمارات",
+   "lon": 55.28238,
+   "lat": 25.21758,
+   "height": 309,
+   "year": 2000,
+   "shape": "data",
+   "radius": 35,
+   "match": [
+    "c770cbb0"
+   ]
+  },
+  {
+   "id": "museum_of_the_future",
+   "name": "Museum of the Future",
+   "name_ar": "متحف المستقبل",
+   "lon": 55.28183,
+   "lat": 25.21911,
+   "height": 77,
+   "year": 2022,
+   "shape": "torus",
+   "radius": 45,
+   "match": [
+    "Museum Of The Future"
+   ]
+  },
+  {
+   "id": "dubai_frame",
+   "name": "Dubai Frame",
+   "name_ar": "برواز دبي",
+   "lon": 55.30037,
+   "lat": 25.23546,
+   "height": 150,
+   "year": 2018,
+   "shape": "frame",
+   "radius": 60,
+   "match": [
+    "Dubai Frame"
+   ]
+  },
+  {
+   "id": "world_trade_centre",
+   "name": "Dubai World Trade Centre",
+   "name_ar": "مركز دبي التجاري العالمي",
+   "lon": 55.28745,
+   "lat": 25.22495,
+   "height": 149,
+   "year": 1979,
+   "shape": "data",
+   "radius": 30,
+   "match": [
+    "Dubai World Trade Centre"
+   ]
+  },
+  {
+   "id": "jw_marriott_marquis",
+   "name": "JW Marriott Marquis",
+   "name_ar": "جي دبليو ماريوت ماركيز",
+   "lon": 55.25805,
+   "lat": 25.18572,
+   "height": 355,
+   "year": 2012,
+   "shape": "data",
+   "radius": 45,
+   "match": [
+    "JW Marriott Marquis Hotel Tower 1",
+    "JW Marriott Marquis Hotel Tower 2"
+   ]
+  },
+  {
+   "id": "dubai_opera",
+   "name": "Dubai Opera",
+   "name_ar": "دبي أوبرا",
+   "lon": 55.27192,
+   "lat": 25.19564,
+   "year": 2016,
+   "shape": "data",
+   "radius": 50,
+   "match": [
+    "Dubai Opera"
+   ]
+  },
+  {
+   "id": "dubai_mall",
+   "name": "The Dubai Mall",
+   "name_ar": "دبي مول",
+   "lon": 55.27935,
+   "lat": 25.19785,
+   "year": 2008,
+   "shape": "data",
+   "radius": 80,
+   "match": [
+    "The Dubai Mall"
+   ]
+  },
+  {
+   "id": "al_fahidi_fort",
+   "name": "Al Fahidi Fort (Dubai Museum)",
+   "name_ar": "حصن الفهيدي",
+   "lon": 55.29721,
+   "lat": 25.26356,
+   "year": 1787,
+   "shape": "data",
+   "radius": 35,
+   "match": [
+    "Al Fahidi Fort"
+   ]
+  },
+  {
+   "id": "etihad_museum",
+   "name": "Etihad Museum (Union House)",
+   "name_ar": "متحف الاتحاد",
+   "lon": 55.26874,
+   "lat": 25.24073,
+   "year": 2017,
+   "shape": "data",
+   "radius": 60,
+   "match": [
+    "Union House"
+   ]
+  },
+  {
+   "id": "burj_al_arab",
+   "name": "Burj Al Arab",
+   "name_ar": "برج العرب",
+   "lon": 55.18526,
+   "lat": 25.14117,
+   "height": 321,
+   "year": 1999,
+   "shape": "data",
+   "radius": 40
+  }
+ ]
+}

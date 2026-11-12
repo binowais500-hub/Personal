@@ -1,0 +1,92 @@
+{
+  "name": "pilot",
+  "bbox": [
+    55.225,
+    25.175,
+    55.33,
+    25.28
+  ],
+  "_bbox_note": "west,south,east,north (WGS84). Pilot = Creek/Shindagha/Deira \u2192 DIFC \u2192 Downtown \u2192 Business Bay/Canal \u2192 Jumeirah coast. Extend e.g. to [55.10, 25.06, 55.33, 25.28] for Palm/Marina/JBR.",
+  "overtureRelease": "2026-10-21.0",
+  "terrainExaggeration": 1.5,
+  "maxzoom": 16,
+  "minzoom": 11,
+  "center": [
+    55.2744,
+    25.1972
+  ],
+  "cameras": {
+    "gulf": {
+      "center": [
+        55.255,
+        25.262
+      ],
+      "zoom": 13.2,
+      "pitch": 62,
+      "bearing": 140
+    },
+    "creek": {
+      "center": [
+        55.2975,
+        25.2655
+      ],
+      "zoom": 15.6,
+      "pitch": 60,
+      "bearing": 25
+    },
+    "downtown": {
+      "center": [
+        55.2744,
+        25.1955
+      ],
+      "zoom": 15.3,
+      "pitch": 62,
+      "bearing": -20
+    },
+    "canal": {
+      "center": [
+        55.262,
+        25.188
+      ],
+      "zoom": 15.2,
+      "pitch": 58,
+      "bearing": 60
+    },
+    "coast": {
+      "center": [
+        55.248,
+        25.2235
+      ],
+      "zoom": 15.4,
+      "pitch": 60,
+      "bearing": 120
+    },
+    "closeup": {
+      "center": [
+        55.2785,
+        25.1985
+      ],
+      "zoom": 16.6,
+      "pitch": 66,
+      "bearing": -35
+    },
+    "fountain": {
+      "center": [
+        55.275,
+        25.195
+      ],
+      "zoom": 15.9,
+      "pitch": 70,
+      "bearing": 10
+    },
+    "metro": {
+      "center": [
+        55.2745,
+        25.2035
+      ],
+      "zoom": 16.4,
+      "pitch": 64,
+      "bearing": -120
+    }
+  }
+}
