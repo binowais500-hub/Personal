@@ -4,18 +4,18 @@ import { Env, RGB, hex, mix, css } from "./env";
 
 type Pair = [string, string]; // [day, night]
 const P: Record<string, Pair> = {
-  sea: ["#2a8fdc", "#0b2447"], creek: ["#1f80d6", "#0a2244"], lake: ["#39a4e4", "#0d2a4f"], pool: ["#57d3ea", "#2a7fa0"],
-  shore: ["#8fe3ef", "#1f5c7c"], foam: ["#f4fcff", "#5f8fa8"],
-  land: ["#ebe6dc", "#2a2d38"],
-  residential: ["#ece6d9", "#2b2e39"], commercial: ["#e7e2da", "#2c2f3a"], industrial: ["#e2ddd5", "#2a2c35"],
-  civic: ["#eee3d6", "#2e2d38"], construction: ["#e9d6b0", "#36302a"], sand: ["#efdcb2", "#3a3328"], beach: ["#f6e2b4", "#3d3629"],
-  cemetery: ["#d3dcbc", "#262f2a"], scrub: ["#cfd9a5", "#263026"], wetland: ["#b6d6aa", "#22302b"], parking: ["#dfdcd6", "#2a2c33"],
-  plaza: ["#f1ebe0", "#34333a"], grass: ["#b4dd7a", "#1f3326"], golf: ["#9dd56a", "#1c3324"], park: ["#a3d468", "#1d3425"],
-  garden: ["#9ccf62", "#1c3324"], wood: ["#7fbf55", "#18301f"], pitch: ["#84c95c", "#1c3a25"], pier: ["#dccfb8", "#3a3730"],
+  sea: ["#1688e8", "#0b2447"], creek: ["#0f74e0", "#0a2244"], lake: ["#22a6f0", "#0d2a4f"], pool: ["#3ee0f2", "#2a7fa0"],
+  shore: ["#6ef0f0", "#1f5c7c"], foam: ["#f4fcff", "#5f8fa8"],
+  land: ["#f2e8d6", "#2a2d38"],
+  residential: ["#f3e7d2", "#2b2e39"], commercial: ["#ece4dc", "#2c2f3a"], industrial: ["#e2ddd5", "#2a2c35"],
+  civic: ["#f6e0d2", "#2e2d38"], construction: ["#f2d49c", "#36302a"], sand: ["#f6d998", "#3a3328"], beach: ["#fbdc96", "#3d3629"],
+  cemetery: ["#c4e0a6", "#262f2a"], scrub: ["#cfd9a5", "#263026"], wetland: ["#b6d6aa", "#22302b"], parking: ["#dfdcd6", "#2a2c33"],
+  plaza: ["#f6ead6", "#34333a"], grass: ["#9edc5a", "#1f3326"], golf: ["#7fd44a", "#1c3324"], park: ["#86d14c", "#1d3425"],
+  garden: ["#7dcc46", "#1c3324"], wood: ["#5fb83e", "#18301f"], pitch: ["#5cc44e", "#1c3a25"], pier: ["#dccfb8", "#3a3730"],
   parkEdge: ["#86b955", "#16281c"],
   motorway: ["#b3b8c0", "#d09550"], motorwayCase: ["#9097a2", "#3a3328"], primary: ["#c4c8ce", "#c58a4c"], primaryCase: ["#a3a9b2", "#33302c"],
   minor: ["#d3d5d8", "#6b5f50"], minorCase: ["#bcc0c5", "#2e2e33"], service: ["#dcdddf", "#4a4540"], path: ["#f3eee4", "#4e4a45"],
-  footprint: ["#d8d2c6", "#25262e"],
+  footprint: ["#e2d6c2", "#25262e"],
 };
 const LU_KINDS = ["residential", "commercial", "industrial", "civic", "construction", "sand", "beach", "cemetery", "scrub", "wetland",
   "parking", "plaza", "grass", "golf", "park", "garden", "wood", "pitch", "pier"];

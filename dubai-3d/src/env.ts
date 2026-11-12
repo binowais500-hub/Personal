@@ -64,18 +64,18 @@ export function computeEnv(date: Date, w: Weather | null): Env {
   sunColor = mix(sunColor, hex("#ff8a5c"), ss(4, -2, altitude) * (1 - night));
   const sunIntensity = ss(-3, 10, altitude) * (1 - overcast * 0.6) * (1 - dust * 0.35);
 
-  const daySky = mix(hex("#5fb4ec"), hex("#a9c2d4"), overcast);
+  const daySky = mix(hex("#3fa6f0"), hex("#a9c2d4"), overcast);
   let skyColor = mix(daySky, hex("#6c86c6"), golden * 0.7);
   skyColor = mix(skyColor, hex("#08142d"), night);
   skyColor = mix(skyColor, hex("#cdb48a"), dust * (1 - night) * 0.8);
   let horizonColor = mix(hex("#e4f2fa"), hex("#ffcd96"), golden);
   horizonColor = mix(horizonColor, hex("#1f3460"), night);
   horizonColor = mix(horizonColor, hex("#e2cfa6"), dust * (1 - night));
-  let fogColor = mix(hex("#e7f0f5"), hex("#f4d6b4"), golden);
+  let fogColor = mix(hex("#d8ecf8"), hex("#f4d6b4"), golden);
   fogColor = mix(fogColor, hex("#121d36"), night);
   fogColor = mix(fogColor, hex("#dcc8a0"), dust * (1 - night * 0.7));
 
-  let skyAmbient = mix(hex("#d5e3ee"), hex("#e9cfc1"), golden);
+  let skyAmbient = mix(hex("#cfe0f2"), hex("#e9cfc1"), golden);
   skyAmbient = mix(skyAmbient, hex("#33416b"), night);
   let groundAmbient = mix(hex("#ebe0cc"), hex("#d9b49a"), golden);
   groundAmbient = mix(groundAmbient, hex("#1d2235"), night);

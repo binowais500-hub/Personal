@@ -12,6 +12,14 @@ const PALETTE: [number, number, number, number][] = [
   [186, 216, 238, 1], [200, 226, 230, 1], [232, 234, 238, 0], [222, 232, 244, 1], [218, 182, 100, 0], [226, 230, 236, 0],
 ];
 
+// extra pastel variety for low/mid-rise facades (picked by building seed)
+const PASTELS: [number, number, number][] = [
+  [255, 214, 196], [255, 236, 170], [196, 236, 214], [206, 222, 255], [232, 210, 250],
+  [255, 200, 214], [190, 230, 240], [250, 224, 190], [214, 240, 186], [244, 246, 250],
+  [255, 190, 150], [170, 214, 246],
+];
+const GLASS: [number, number, number][] = [[150, 200, 240], [140, 214, 226], [176, 196, 246], [200, 230, 250]];
+
 class Buf {
   pos: number[] = []; nrm: number[] = []; col: number[] = []; ext: number[] = []; idx: number[] = [];
   get n() { return this.pos.length / 3; }
@@ -39,7 +47,13 @@ self.onmessage = (ev: MessageEvent<{ id: string; chunk: Chunk; scale: number }>)
     const [hdm, mdm, zdm, ci, li, seed, ringsDm] = rec;
     const h = hdm / 10, mh = mdm / 10, base = zdm / 10;
     if (h - mh < 0.5) continue;
-    const pal = PALETTE[ci] ?? PALETTE[0];
+    let pal = PALETTE[ci] ?? PALETTE[0];
+    if (li < 0) {
+      // colourful town: most non-landmark buildings get a saturated pastel, glass towers a tinted blue/teal
+      const r = (seed * 7919) % 100;
+      if (pal[3]) pal = [...GLASS[seed % GLASS.length], 1];
+      else if (r < 72) pal = [...PASTELS[seed % PASTELS.length], 0];
+    }
     const tall = h > 6 ? 1 : 0;
     // kind: 0 wall w/ windows, 1 roof, 2 wall without windows; +4 glass facade
     const wallKind = (tall ? 0 : 2) + (pal[3] ? 4 : 0);
@@ -73,7 +87,10 @@ self.onmessage = (ev: MessageEvent<{ id: string; chunk: Chunk; scale: number }>)
     rings.forEach((r, k) => { if (k > 0) holes.push(flat.length / 2); flat.push(...r); });
     const tri = earcut(flat, holes, 2);
     const v0 = B.n;
-    const rc = Math.min(255, pal[0] * 1.04), gc = Math.min(255, pal[1] * 1.04), bc = Math.min(255, pal[2] * 1.04);
+    // roofs: mostly light, some terracotta / teal / sand on low-rise for a toy-town look
+    const rr = (seed * 104729) % 100;
+    const roofPal: [number, number, number] | null = h < 25 && rr < 22 ? ([[222, 120, 84], [92, 186, 186], [236, 196, 120], [200, 110, 130]][rr % 4] as [number, number, number]) : null;
+    const rc = roofPal ? roofPal[0] : Math.min(255, pal[0] * 1.05), gc = roofPal ? roofPal[1] : Math.min(255, pal[1] * 1.05), bc = roofPal ? roofPal[2] : Math.min(255, pal[2] * 1.05);
     for (let i = 0; i < flat.length / 2; i++) {
       B.pos.push(flat[i * 2], flat[i * 2 + 1], h);
       B.nrm.push(0, 0, 127, 0);

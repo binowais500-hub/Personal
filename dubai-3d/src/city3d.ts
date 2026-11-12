@@ -201,8 +201,12 @@ export class City3D implements CustomLayerInterface {
         q.setFromAxisAngle(zAxis, ((k * 2654435761) % 6283) / 1000);
         m4.compose(new THREE.Vector3(x, y, z), q, new THREE.Vector3(s * this.geo.scale, s * this.geo.scale, s));
         im.setMatrixAt(ii, m4);
-        const pal = CANOPY[type] ?? CANOPY[1];
-        im.setColorAt(ii, col.set(pal[(k * 31) % pal.length]));
+        // more blossom: a share of plain shade trees flower purple, orange, pink or yellow
+        let ct = type;
+        const hsh = (k * 2654435761) % 100;
+        if (type === 1 && hsh < 34) ct = [2, 3, 4, 2][hsh % 4];
+        const pal = CANOPY[ct] ?? CANOPY[1];
+        im.setColorAt(ii, col.set(hsh > 96 && type === 1 ? "#ffd23a" : pal[(k * 31) % pal.length]));
       });
       im.computeBoundingSphere();
       im.renderOrder = 3;

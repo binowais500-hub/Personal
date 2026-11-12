@@ -74,12 +74,12 @@ export function shrubGeometry() {
 
 // canopy colours per tree type: 0 palm, 1 round, 2 jacaranda, 3 flame tree, 4 shrub/bougainvillea, 5 tall palm
 export const CANOPY: Record<number, string[]> = {
-  0: ["#6cb83e", "#7cc447", "#5eaa3a", "#88cc4e"],
-  1: ["#5fb23f", "#4fa23a", "#74c04a", "#8ccd52", "#58a844"],
-  2: ["#9b7fdc", "#8f70d4", "#a68be0"],
-  3: ["#ea6a2e", "#f28236", "#e2552a"],
-  4: ["#d64b9b", "#c43f8d", "#5ca23c", "#e070b0"],
-  5: ["#6cb83e", "#7cc447"],
+  0: ["#5cc236", "#74d23e", "#4fb52f", "#8ed846"],
+  1: ["#4fbf3a", "#3fae34", "#6ad044", "#94dc4c", "#46b84a"],
+  2: ["#a079ee", "#8e5ff0", "#b994f5"],
+  3: ["#ff6a24", "#ff8c2a", "#f24a1e"],
+  4: ["#ec3fa2", "#d92f8e", "#ff6fc0", "#5cc23c"],
+  5: ["#5cc236", "#74d23e"],
 };
 export const GEO_OF_TYPE = [0, 1, 1, 1, 2, 0]; // -> palm, round, shrub
 export const SCALE_OF_TYPE = [1, 1, 1.1, 1.15, 1, 1.45];

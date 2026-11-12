@@ -8,12 +8,12 @@ float hash13(vec3 p3) { p3 = fract(p3 * .1031); p3 += dot(p3, p3.zyx + 31.32); r
 vec3 applyFog(vec3 c, vec3 p) {
   vec3 d = p - uCam; d.z *= uScale;
   float f = smoothstep(uFogNear, uFogFar, length(d) / uScale);
-  return mix(c, uFogColor, f * 0.7);
+  return mix(c, uFogColor, f * 0.55);
 }
 vec3 light(vec3 n) {
   float diff = max(dot(n, uSunDir), 0.0);
   vec3 hemi = mix(uGroundAmb, uSkyAmb, n.z * 0.5 + 0.5);
-  return hemi * 0.9 + uSunColor * diff * uSunI * 0.42;
+  return hemi * 0.8 + uSunColor * diff * uSunI * 0.5;
 }`;
 
 export const buildingVS = /* glsl */ `
@@ -69,6 +69,8 @@ void main() {
   // landmarks are flood-lit at night
   if (vLm > -0.5) emissive += vec3(0.75, 0.8, 0.95) * uNight * 0.28 * (0.6 + 0.4 * smoothstep(0.0, 200.0, vH));
   if (uHL > -0.5 && abs(vLm - uHL) < 0.5) col = mix(col, vec3(1.0, 0.82, 0.38), 0.28 + 0.12 * sin(uTime * 4.0));
+  float lum = dot(col, vec3(0.299, 0.587, 0.114));
+  col = mix(vec3(lum), col, 1.25);
   col += emissive;
   gl_FragColor = vec4(applyFog(col, vP), 1.0);
 }`;
@@ -108,6 +110,7 @@ void main() {
   vec3 col = vCol * light(n) * vAo;
   col *= mix(1.0, 0.42, uNight);
   col += vCol * uEmissive * uNight;
+  col = mix(vec3(dot(col, vec3(0.299, 0.587, 0.114))), col, 1.3);
   gl_FragColor = vec4(applyFog(col, vP), 1.0);
 }`;
 
