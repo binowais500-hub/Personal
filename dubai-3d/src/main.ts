@@ -15,19 +15,25 @@ const params = new URL(location.href).searchParams;
 const mobile = matchMedia("(pointer: coarse)").matches || /iPhone|iPad|Android/i.test(navigator.userAgent);
 // Tiles can live on R2 / another origin: set VITE_TILES_BASE at build time (must end with "/").
 const BASE: string = import.meta.env.VITE_TILES_BASE || new URL("./", location.href).href;
+// VITE_PMTILES_B64=1: archives are served as base64 text (for hosts that refuse binary files)
+const PM = (name: string) => `${BASE}tiles/${name}.pmtiles${import.meta.env.VITE_PMTILES_B64 ? ".b64.txt" : ""}`;
 
+import { archive } from "./pmtilesSource";
 maplibregl.setWorkerUrl(mlWorkerUrl);
-maplibregl.addProtocol("pmtiles", new Protocol().tile);
+const protocol = new Protocol();
+maplibregl.addProtocol("pmtiles", protocol.tile);
 
 async function hasPainted() {
   try {
-    const r = await fetch(`${BASE}tiles/painted.pmtiles`, { method: "HEAD" });
+    const r = await fetch(PM("painted"), { method: "HEAD" });
     return r.ok && !(r.headers.get("content-type") || "").includes("text/html");
   } catch { return false; }
 }
 
 async function main() {
+  for (const f of ["dubai", "terrain"]) protocol.add(archive(PM(f)));
   const [meta, painted] = await Promise.all([fetch(`${BASE}tiles/meta.json`).then((r) => r.json() as Promise<Meta>), hasPainted()]);
+  if (painted) protocol.add(archive(PM("painted")));
   const geo = new Geo(meta);
   const [w, s, e, n] = meta.bbox;
   const pad = 0.05;
@@ -35,7 +41,7 @@ async function main() {
 
   const map = new maplibregl.Map({
     container: "map",
-    style: buildStyle(BASE, { painted, exaggeration: params.has("noterrain") ? 0 : meta.terrainExaggeration }),
+    style: buildStyle(BASE, { pm: PM, painted, exaggeration: params.has("noterrain") ? 0 : meta.terrainExaggeration }),
     center: startView.center, zoom: startView.zoom, pitch: startView.pitch, bearing: startView.bearing,
     minZoom: 11.5, maxZoom: 18.5, maxPitch: 78,
     maxBounds: [[w - pad, s - pad], [e + pad, n + pad]],

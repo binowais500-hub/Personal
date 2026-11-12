@@ -40,14 +40,15 @@ function matchKind(env: Env | null, kinds: string[], fallback: string): Expressi
 const W = (pairs: [number, number][]): ExpressionSpecification =>
   ["interpolate", ["exponential", 1.6], ["zoom"], ...pairs.flat()] as unknown as ExpressionSpecification;
 
-export function buildStyle(base: string, opts: { painted: boolean; exaggeration: number; flat?: boolean }): StyleSpecification {
+export function buildStyle(base: string, opts: { painted: boolean; exaggeration: number; flat?: boolean; pm?: (n: string) => string }): StyleSpecification {
+  const pm = opts.pm ?? ((n: string) => `${base}tiles/${n}.pmtiles`);
   const src = "base";
   const style: StyleSpecification = {
     version: 8,
     sources: {
-      [src]: { type: "vector", url: `pmtiles://${base}tiles/dubai.pmtiles` },
-      terrain: { type: "raster-dem", url: `pmtiles://${base}tiles/terrain.pmtiles`, encoding: "terrarium", tileSize: 256 },
-      ...(opts.painted ? { painted: { type: "raster", url: `pmtiles://${base}tiles/painted.pmtiles`, tileSize: 256 } } : {}),
+      [src]: { type: "vector", url: `pmtiles://${pm("dubai")}` },
+      terrain: { type: "raster-dem", url: `pmtiles://${pm("terrain")}`, encoding: "terrarium", tileSize: 256 },
+      ...(opts.painted ? { painted: { type: "raster", url: `pmtiles://${pm("painted")}`, tileSize: 256 } } : {}),
     },
     ...(opts.exaggeration > 0 ? { terrain: { source: "terrain", exaggeration: opts.exaggeration } } : {}),
     sky: {},
